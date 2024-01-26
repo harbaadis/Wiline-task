@@ -15,7 +15,7 @@ const App: React.FC = () => {
         break;
       case 'getUser':
         setRequestType('GET');
-        setEndpoint('/users/:id'); 
+        setEndpoint('/users/'); 
         break;
       case 'addUser':
         setRequestType('POST');
@@ -23,11 +23,11 @@ const App: React.FC = () => {
         break;
       case 'updateUser':
         setRequestType('PUT');
-        setEndpoint('/users/:id'); 
+        setEndpoint('/users/'); 
         break;
       case 'deleteUser':
         setRequestType('DELETE');
-        setEndpoint('/users/id'); 
+        setEndpoint('/users/'); 
         break;
       default:
         setRequestType('GET');

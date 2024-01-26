@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
-import { MainWrapper, OutputListWrapper } from './Main.styled';
+import { MainWrapper } from './Main.styled';
+import Output from '../Output/Output';
+import SearchInput from '../SearchInput/SearchInput';
+import GetUserInput from '../GetUserInput/GetUserInput';
+import AddUserInput from '../AddUserInput/AddUserInput';
+import UpdateUserInput from '../UpdateUserInput/UpdateUserInput';
+import DeleteUserInput from '../DeleteUserInput/DeleteUserInput';
 
 interface MainProps {
   requestType: string | null;
@@ -8,67 +14,58 @@ interface MainProps {
 }
 
 const Main: React.FC<MainProps> = ({ requestType, endpoint }) => {
-  const [payload, setPayload] = useState<string>('');
-  const [response, setResponse] = useState<AxiosResponse<any, any> | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [payload, setPayload] = React.useState<string>('');
+  const [response, setResponse] = React.useState<AxiosResponse<any, any> | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    if (requestType && endpoint) {
-      let url = `http://localhost:3001${endpoint}`;
-
-      // For GET requests, add query parameters to the URL
-      if (requestType === 'GET') {
-        const queryParams = payload.trim();
-        if (queryParams) {
-          url += `?${queryParams}`;
-        }
-      }
-
-      axios({
-        method: requestType as any,
-        url: url,
-        data: requestType !== 'GET' ? JSON.parse(payload) : undefined,
-      })
-        .then((result) => setResponse(result))
-        .catch((error) => setError(`Error: ${error.message}`));
+  const handleRequest = () => {
+    let url = `http://localhost:3001${endpoint}`;
+    if (payload) {
+      url += `${payload}`;
     }
-  }, [requestType, endpoint, payload]);
+    console.log(url);
+    axios({
+      method: requestType as any,
+      url: url,
+      data: null,
+    })
+      .then((result) => setResponse(result))
+      .catch((error) => setError(`Error: ${error.message}`));
+  };
 
-  const handleTextareaKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      // Trigger the request when the user presses Enter (without Shift)
-      setPayload(e.currentTarget.value);
+  React.useEffect(() => {
+    handleRequest();
+  }, [payload]);
+
+  const renderInputComponent = () => {
+    switch (requestType) {
+      case 'GET':
+        switch (endpoint) {
+          case '/users':
+            return <SearchInput onRequestSubmit={(newPayload) => { setPayload(newPayload); handleRequest(); }} />;
+          case '/users/':
+            return <GetUserInput onRequestSubmit={(newPayload) => { setPayload(newPayload); handleRequest(); }} />;
+        }
+        break;
+      case 'POST':
+        return <AddUserInput onRequestSubmit={(newPayload) => { setPayload(newPayload); handleRequest(); }} />;
+      case 'PUT':
+        return <UpdateUserInput onRequestSubmit={(newPayload) => { setPayload(newPayload); handleRequest(); }} />;
+      case 'DELETE':
+        return <DeleteUserInput onRequestSubmit={handleRequest} />;
+      default:
+        return ;
     }
   };
+
 
   return (
     <MainWrapper>
       <div className="input-container">
-        <div>input the payload as you would in a curl command</div>
-        <textarea
-          id="payload"
-          value={payload}
-          onChange={(e) => setPayload(e.target.value)}
-          onKeyDown={handleTextareaKeyPress}
-          placeholder="Example: &quot;query=John&quot;"
-        />
+        {/* Render the appropriate input component */}
+        {renderInputComponent()}
       </div>
-      <div className="output-container">
-        {response && (
-          <OutputListWrapper>
-            <h2>API Response:</h2>
-            <ul>
-              {Object.entries(response.data).map(([key, value]) => (
-                <li key={key}>
-                  <strong>{key}:</strong> {JSON.stringify(value, null, 2)}
-                </li>
-              ))}
-            </ul>
-          </OutputListWrapper>
-        )}
-        {error && <p>{error}</p>}
-      </div>
+      <Output response={response} error={error} />
     </MainWrapper>
   );
 };
