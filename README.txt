@@ -4,7 +4,11 @@ This project is a simple User Management API that allows merging user data and p
 
 ## Getting Started
 
-To run the project localy I used node express server and react ...
+To run the project localy I used node express server and react's build in development server alongside yarn.
+Running the project should be a straight forward proces:
+1. Clone the repository.
+2. Install dependencies using `npm install`.
+3. Run the server with `npm start`. (or yarn)
 
 ## Endpoints
 
@@ -16,7 +20,7 @@ To run the project localy I used node express server and react ...
 
 ## Testing
 
-You can test the API using tools like curl or Postman. Here are some example commands:
+You can test the backend API using tools like curl or Postman. Here are some example commands:
 
 - Fetch all users: `curl http://localhost:3001/users`
 - Fetch a user by ID: `curl http://localhost:3001/users/1`
